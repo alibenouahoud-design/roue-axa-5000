@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Roue des Lots – AXA Services Maroc 🎉</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --c1:#FF6B6B; --c2:#FFD93D; --c3:#6BCB77; --c4:#4D96FF;
+    --c5:#FF922B; --c6:#CC5DE8; --c7:#20C997; --c8:#F06595;
+    --bg-dark:#1a0533; --bg-mid:#2d1052;
+    --gold:#FFD700; --white:#fff;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family:'Nunito', sans-serif;
+    background: var(--bg-dark);
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* Animated starfield */
+  .stars {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse at 15% 30%, rgba(255,107,107,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 70%, rgba(77,150,255,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 10%, rgba(255,217,61,0.1) 0%, transparent 40%);
+  }
+
+  .star {
+    position:fixed; border-radius:50%;
+    animation: twinkle linear infinite alternate;
+    pointer-events:none; z-index:0;
+  }
+
+  @keyframes twinkle {
+    0%   { opacity:0.2; transform:scale(1); }
+    100% { opacity:1;   transform:scale(1.4); }
+  }
+
+  /* Header */
+  header {
+    position:relative; z-index:2;
+    width:100%; text-align:center;
+    padding:22px 20px 10px;
+  }
+
+  .axa-tag {
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:40px;
+    padding:6px 18px; margin-bottom:10px;
+    font-size:0.72rem; font-weight:700;
+    color:rgba(255,255,255,0.7);
+    letter-spacing:2px; text-transform:uppercase;
+  }
+
+  .axa-tag strong { color:#fff; font-size:1rem; letter-spacing:3px; }
+
+  h1 {
+    font-family:'Fredoka One', cursive;
+    font-size:clamp(2rem, 5vw, 3.2rem);
+    background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 50%, #CC5DE8 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text;
+    line-height:1.1; margin-bottom:8px;
+  }
+
+  .milestone {
+    display:inline-flex; align-items:center; gap:6px;
+    background:linear-gradient(135deg, #FFD93D, #FF922B);
+    color:#1a0533;
+    font-weight:900; font-size:0.78rem;
+    letter-spacing:1.5px; text-transform:uppercase;
+    padding:6px 20px; border-radius:30px;
+    box-shadow:0 4px 20px rgba(255,217,61,0.4);
+  }
+
+  /* Main */
+  main {
+    position:relative; z-index:2;
+    display:flex; flex-direction:column; align-items:center;
+    gap:24px; padding:20px 20px 48px;
+    width:100%; max-width:960px;
+  }
+
+  /* Wheel area */
+  .wheel-section {
+    display:flex; flex-direction:column; align-items:center;
+    gap:0; position:relative;
+  }
+
+  /* Pointer */
+  .pointer {
+    position:absolute; top:-18px; left:50%;
+    transform:translateX(-50%);
+    z-index:10;
+    filter:drop-shadow(0 3px 8px rgba(0,0,0,0.6));
+    transition:filter 0.05s;
+  }
+
+  .pointer.flash { filter:drop-shadow(0 0 14px #FFD93D) drop-shadow(0 3px 8px rgba(0,0,0,0.6)); }
+
+  /* Glow ring */
+  .wheel-glow {
+    border-radius:50%;
+    position:relative;
+    padding:10px;
+    background: conic-gradient(
+      #FF6B6B, #FFD93D, #6BCB77, #4D96FF,
+      #FF922B, #CC5DE8, #20C997, #F06595, #FF6B6B
+    );
+    animation: rotateBorder 8s linear infinite;
+    box-shadow: 0 0 60px rgba(255,107,107,0.3), 0 0 120px rgba(77,150,255,0.2);
+  }
+
+  @keyframes rotateBorder {
+    from { filter:hue-rotate(0deg); }
+    to   { filter:hue-rotate(360deg); }
+  }
+
+  .wheel-inner {
+    border-radius:50%;
+    background:#1a0533;
+    padding:6px;
+    position:relative;
+  }
+
+  canvas { display:block; border-radius:50%; }
+
+  /* Hub */
+  .hub {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:68px; height:68px; border-radius:50%;
+    background:linear-gradient(135deg, #FFD93D 0%, #FF922B 100%);
+    border:5px solid #fff;
+    box-shadow:0 0 0 3px rgba(255,217,61,0.4), 0 6px 24px rgba(0,0,0,0.5);
+    display:flex; align-items:center; justify-content:center;
+    z-index:5; cursor:pointer;
+    transition:transform 0.15s, box-shadow 0.15s;
+    font-family:'Fredoka One', cursive;
+    font-size:0.85rem; color:#1a0533;
+    letter-spacing:0.5px;
+  }
+
+  .hub:hover { transform:translate(-50%,-50%) scale(1.1); box-shadow:0 0 0 6px rgba(255,217,61,0.3), 0 8px 30px rgba(0,0,0,0.5); }
+
+  /* Spin btn */
+  .spin-btn {
+    margin-top:24px;
+    background:linear-gradient(135deg, #FF6B6B 0%, #FF922B 50%, #FFD93D 100%);
+    color:#1a0533;
+    font-family:'Fredoka One', cursive;
+    font-size:1.25rem;
+    letter-spacing:2px;
+    border:none; border-radius:50px;
+    padding:16px 56px;
+    cursor:pointer;
+    box-shadow:0 8px 30px rgba(255,107,107,0.5), 0 2px 0 rgba(255,255,255,0.3) inset;
+    transition:transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+    position:relative; overflow:hidden;
+  }
+
+  .spin-btn::before {
+    content:''; position:absolute;
+    top:0; left:-80%; width:50%; height:100%;
+    background:rgba(255,255,255,0.25);
+    transform:skewX(-20deg);
+    transition:left 0.5s;
+  }
+
+  .spin-btn:hover:not(:disabled)::before { left:120%; }
+  .spin-btn:hover:not(:disabled) { transform:translateY(-3px) scale(1.03); box-shadow:0 16px 40px rgba(255,107,107,0.6); }
+  .spin-btn:active:not(:disabled) { transform:translateY(0) scale(0.98); }
+  .spin-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+  /* Lots grid */
+  .lots-panel {
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:24px;
+    padding:24px 28px;
+    width:100%; max-width:520px;
+  }
+
+  .lots-panel h3 {
+    color:rgba(255,255,255,0.45);
+    font-size:0.62rem; letter-spacing:3px;
+    text-transform:uppercase; margin-bottom:14px;
+    text-align:center;
+  }
+
+  .lots-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+
+  .lot-badge {
+    display:flex; align-items:center; gap:8px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;
+    padding:8px 12px;
+    font-size:0.78rem; font-weight:700;
+    color:rgba(255,255,255,0.88);
+  }
+
+  .lot-color { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+  /* Modal */
+  .modal-backdrop {
+    position:fixed; inset:0;
+    background:rgba(10,0,30,0.88);
+    backdrop-filter:blur(12px);
+    z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.35s;
+  }
+
+  .modal-backdrop.active { opacity:1; pointer-events:all; }
+
+  .modal {
+    position:relative;
+    background:linear-gradient(160deg, #2d1052 0%, #1a0533 100%);
+    border:2px solid rgba(255,255,255,0.12);
+    border-radius:32px;
+    padding:52px 44px 44px;
+    text-align:center;
+    max-width:440px; width:92%;
+    box-shadow:0 40px 100px rgba(0,0,0,0.7);
+    transform:scale(0.8) translateY(30px);
+    transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1);
+    overflow:hidden;
+  }
+
+  .modal::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:5px;
+    background:linear-gradient(90deg, #FF6B6B, #FFD93D, #6BCB77, #4D96FF, #CC5DE8);
+  }
+
+  .modal-backdrop.active .modal { transform:scale(1) translateY(0); }
+
+  .modal-burst {
+    font-size:4.5rem;
+    display:block;
+    margin-bottom:10px;
+    animation:burst 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    animation-delay:0.2s;
+    transform:scale(0);
+  }
+
+  @keyframes burst {
+    0%   { transform:scale(0) rotate(-20deg); }
+    100% { transform:scale(1) rotate(0deg); }
+  }
+
+  .modal-title {
+    font-family:'Fredoka One', cursive;
+    font-size:1rem;
+    background:linear-gradient(90deg,#FFD93D,#FF922B);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    letter-spacing:3px; text-transform:uppercase;
+    margin-bottom:6px;
+  }
+
+  .modal-lot {
+    font-family:'Fredoka One', cursive;
+    font-size:2rem;
+    color:#fff;
+    line-height:1.2;
+    margin:10px 0 4px;
+  }
+
+  .modal-lot .highlight { color:#FFD93D; }
+
+  .modal-sub {
+    font-size:0.78rem; color:rgba(255,255,255,0.45);
+    margin-bottom:28px; line-height:1.5;
+  }
+
+  .modal-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+  .modal-btn {
+    font-family:'Nunito', sans-serif; font-weight:900;
+    font-size:0.85rem; letter-spacing:1.5px;
+    text-transform:uppercase; border:none;
+    border-radius:50px; padding:13px 28px; cursor:pointer;
+    transition:transform 0.15s, box-shadow 0.15s;
+  }
+
+  .btn-primary {
+    background:linear-gradient(135deg,#FF6B6B,#FF922B);
+    color:#fff;
+    box-shadow:0 6px 24px rgba(255,107,107,0.4);
+  }
+
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,107,107,0.5); }
+
+  /* Confetti */
+  .confetti-piece {
+    position:fixed; top:-30px;
+    pointer-events:none; z-index:200;
+    opacity:0;
+    animation:confFall linear forwards;
+  }
+
+  @keyframes confFall {
+    0%   { opacity:1; transform:translateY(0) rotate(0deg) scale(1); }
+    85%  { opacity:1; }
+    100% { opacity:0; transform:translateY(115vh) rotate(900deg) scale(0.4); }
+  }
+
+  /* Sound indicator */
+  .sound-toggle {
+    position:fixed; top:16px; right:16px;
+    z-index:50;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:50%; width:42px; height:42px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:1.1rem;
+    transition:background 0.2s;
+    color:#fff; user-select:none;
+  }
+
+  .sound-toggle:hover { background:rgba(255,255,255,0.15); }
+
+  @media (max-width:550px) {
+    .lots-grid { grid-template-columns:1fr; }
+    .modal { padding:40px 22px 32px; }
+    .modal-lot { font-size:1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<!-- Sound toggle -->
+<div class="sound-toggle" id="soundToggle" title="Son on/off">🔊</div>
+
+<header>
+  <div class="axa-tag"><strong>AXA</strong> Services Maroc</div>
+  <h1>🎡 La Grande Roue des Lots !</h1>
+  <div class="milestone">🎉 5 000ème Collaborateur</div>
+</header>
+
+<main>
+  <div class="wheel-section">
+    <!-- Pointer -->
+    <div class="pointer" id="pointer">
+      <svg width="46" height="50" viewBox="0 0 46 50" fill="none">
+        <polygon points="23,50 2,6 44,6" fill="#FFD93D" stroke="white" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="23" cy="10" r="7" fill="white" stroke="#FFD93D" stroke-width="2"/>
+        <circle cx="23" cy="10" r="3.5" fill="#FF922B"/>
+      </svg>
+    </div>
+
+    <!-- Wheel -->
+    <div class="wheel-glow" id="wheelGlow">
+      <div class="wheel-inner">
+        <canvas id="wheelCanvas" width="460" height="460"></canvas>
+        <div class="hub" onclick="spinWheel()" id="hub">SPIN!</div>
+      </div>
+    </div>
+
+    <button class="spin-btn" id="spinBtn" onclick="spinWheel()">
+      🎰 Tourner la Roue !
+    </button>
+  </div>
+
+  <!-- Lots legend -->
+  <div class="lots-panel">
+    <h3>🎁 Lots à gagner</h3>
+    <div class="lots-grid" id="lotsList"></div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <span class="modal-burst" id="modalEmoji">🎉</span>
+    <div class="modal-title">🏆 Félicitations !</div>
+    <div class="modal-lot" id="modalLot">Votre lot</div>
+    <div class="modal-sub">Présentez ce résultat à l'équipe organisatrice pour récupérer votre lot 🎁</div>
+    <div class="modal-actions">
+      <button class="modal-btn btn-primary" onclick="closeModal()">🔄 Rejouer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================
+// Starfield
+// =====================
+(function() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = 1 + Math.random() * 3;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}vw; top:${Math.random()*100}vh;
+      background:hsl(${Math.random()*360},80%,80%);
+      animation-duration:${1.5+Math.random()*3}s;
+      animation-delay:${Math.random()*3}s;
+    `;
+    container.appendChild(s);
+  }
+})();
+
+// =====================
+// Sound engine (Web Audio API)
+// =====================
+let soundEnabled = true;
+let audioCtx = null;
+
+document.getElementById('soundToggle').addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+});
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTick(pitch = 880) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(pitch, ctx.currentTime);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.start(); osc.stop(ctx.currentTime + 0.08);
+  } catch(e){}
+}
+
+function playWin() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudio();
+    const notes = [523, 659, 784, 1047, 1319];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.35);
+      osc.start(ctx.currentTime + i * 0.12);
+      osc.stop(ctx.currentTime + i * 0.12 + 0.35);
+    });
+  } catch(e){}
+}
+
+// =====================
+// Lots configuration
+// =====================
+const LOTS = [
+  { label:"Bon d'achat 500 MAD",  emoji:"💳", color:"#FF6B6B" },
+  { label:"Goodies AXA Premium",  emoji:"🎁", color:"#FFD93D" },
+  { label:"Journée off offerte",  emoji:"🏖️", color:"#6BCB77" },
+  { label:"Formation au choix",   emoji:"📚", color:"#4D96FF" },
+  { label:"Panier gourmand",      emoji:"🧺", color:"#FF922B" },
+  { label:"Bon d'achat 200 MAD",  emoji:"🛍️", color:"#CC5DE8" },
+  { label:"Tickets restaurant x5",emoji:"🍽️", color:"#20C997" },
+  { label:"Kit bien-être",        emoji:"💆", color:"#F06595" },
+];
+
+const SLICE_COLORS = [
+  ["#FF6B6B","#ff8e8e"],
+  ["#FFD93D","#ffe675"],
+  ["#6BCB77","#8ee09a"],
+  ["#4D96FF","#76b1ff"],
+  ["#FF922B","#ffab59"],
+  ["#CC5DE8","#de8df2"],
+  ["#20C997","#4dd9b0"],
+  ["#F06595","#f590b4"],
+];
+
+// =====================
+// Build legend
+// =====================
+const lotsList = document.getElementById('lotsList');
+LOTS.forEach((lot, i) => {
+  const div = document.createElement('div');
+  div.className = 'lot-badge';
+  div.innerHTML = `<span class="lot-color" style="background:${SLICE_COLORS[i][0]}"></span>${lot.emoji} ${lot.label}`;
+  lotsList.appendChild(div);
+});
+
+// =====================
+// Canvas drawing
+// =====================
+const canvas = document.getElementById('wheelCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const CX = W/2, CY = H/2;
+const RADIUS = W/2 - 8;
+const N = LOTS.length;
+const ARC = (2*Math.PI)/N;
+
+let currentAngle = 0;
+let spinning = false;
+
+function drawWheel(angle) {
+  ctx.clearRect(0, 0, W, H);
+
+  for (let i = 0; i < N; i++) {
+    const start = angle + i*ARC;
+    const end   = start + ARC;
+    const [c1, c2] = SLICE_COLORS[i];
+
+    // Gradient slice
+    const midAngle = start + ARC/2;
+    const gx1 = CX + Math.cos(midAngle)*RADIUS*0.2;
+    const gy1 = CY + Math.sin(midAngle)*RADIUS*0.2;
+    const gx2 = CX + Math.cos(midAngle)*RADIUS;
+    const gy2 = CY + Math.sin(midAngle)*RADIUS;
+    const grad = ctx.createLinearGradient(gx1, gy1, gx2, gy2);
+    grad.addColorStop(0, c2);
+    grad.addColorStop(1, c1);
+
+    ctx.beginPath();
+    ctx.moveTo(CX, CY);
+    ctx.arc(CX, CY, RADIUS, start, end);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Divider
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Emoji
+    ctx.save();
+    ctx.translate(CX, CY);
+    ctx.rotate(start + ARC/2);
+    ctx.font = `${W*0.06}px serif`;
+    ctx.textAlign = 'right';
+    ctx.fillText(LOTS[i].emoji, RADIUS - 12, 8);
+
+    // Label
+    ctx.font = `bold ${W*0.033}px Nunito, sans-serif`;
+    ctx.fillStyle = '#fff';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 5;
+    ctx.textAlign = 'right';
+
+    const words = LOTS[i].label.split(' ');
+    let l1='', l2='';
+    const maxW = RADIUS*0.52;
+    for (const w of words) {
+      if (ctx.measureText(l1+w).width < maxW) l1 += (l1?' ':'')+w;
+      else l2 += (l2?' ':'')+w;
+    }
+    if (l2) {
+      ctx.fillText(l1, RADIUS*0.70, -8);
+      ctx.fillText(l2, RADIUS*0.70, 12);
+    } else {
+      ctx.fillText(l1, RADIUS*0.70, 5);
+    }
+    ctx.restore();
+  }
+
+  // Outer decorative ring
+  ctx.beginPath();
+  ctx.arc(CX, CY, RADIUS, 0, 2*Math.PI);
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
+  // Inner dot ring
+  for (let i=0; i<N; i++) {
+    const a = angle + i*ARC;
+    const dx = CX + Math.cos(a)*RADIUS;
+    const dy = CY + Math.sin(a)*RADIUS;
+    ctx.beginPath();
+    ctx.arc(dx, dy, 6, 0, 2*Math.PI);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  }
+}
+
+drawWheel(currentAngle);
+
+// =====================
+// Spin logic
+// =====================
+function spinWheel() {
+  if (spinning) return;
+  spinning = true;
+  document.getElementById('spinBtn').disabled = true;
+  document.getElementById('hub').style.pointerEvents = 'none';
+
+  // Resume audio context on user gesture
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+
+  const extraSpins  = 6 + Math.floor(Math.random()*5);
+  const targetExtra = Math.random()*2*Math.PI;
+  const target = currentAngle + extraSpins*2*Math.PI + targetExtra;
+  const duration = 4500 + Math.random()*1500;
+  const startTime  = performance.now();
+  const startAngle = currentAngle;
+
+  let lastSlice = -1;
+  let lastTickTime = 0;
+
+  function easeOut(t) { return 1 - Math.pow(1-t, 4.5); }
+
+  function animate(now) {
+    const elapsed  = now - startTime;
+    const progress = Math.min(elapsed/duration, 1);
+    const eased    = easeOut(progress);
+
+    currentAngle = startAngle + (target - startAngle)*eased;
+    drawWheel(currentAngle);
+
+    // Tick sound & pointer flash
+    const norm = ((currentAngle % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+    const slice = Math.floor(((2*Math.PI - norm) / ARC)) % N;
+    const timeSinceTick = now - lastTickTime;
+    const speed = (target - startAngle) * (1 - eased); // remaining distance
+    const minInterval = Math.max(40, 120 * (1 - eased)); // faster ticks early
+
+    if (slice !== lastSlice && timeSinceTick > minInterval) {
+      lastSlice = slice;
+      lastTickTime = now;
+      const pitchMod = 600 + (1-eased)*600; // pitch rises as it slows
+      playTick(pitchMod);
+      // Flash pointer
+      const ptr = document.getElementById('pointer');
+      ptr.classList.add('flash');
+      setTimeout(() => ptr.classList.remove('flash'), 80);
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      spinning = false;
+      // Determine winning slice
+      const finalNorm = ((currentAngle % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+      const winner = Math.floor(((2*Math.PI - finalNorm) / ARC + 0.5)) % N;
+      setTimeout(() => showResult(winner), 350);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// =====================
+// Result modal
+// =====================
+function showResult(idx) {
+  const lot = LOTS[idx];
+  const emoji = document.getElementById('modalEmoji');
+  emoji.style.animation = 'none';
+  void emoji.offsetWidth; // reflow
+  emoji.style.animation = '';
+  emoji.textContent = lot.emoji;
+
+  // Highlight numbers in label
+  const label = lot.label.replace(/(\d[\d\s]*(?:MAD|x\d)?)/g, '<span class="highlight">$1</span>');
+  document.getElementById('modalLot').innerHTML = label;
+
+  document.getElementById('modalBackdrop').classList.add('active');
+  playWin();
+  launchConfetti();
+}
+
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('active');
+  document.getElementById('spinBtn').disabled = false;
+  document.getElementById('hub').style.pointerEvents = 'auto';
+}
+
+// =====================
+// Confetti
+// =====================
+function launchConfetti() {
+  const colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF922B','#CC5DE8','#20C997','#F06595','#ffffff'];
+  const shapes = ['●','■','▲','◆','★','✦','❋','✿'];
+  for (let i = 0; i < 120; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.textContent = shapes[Math.floor(Math.random()*shapes.length)];
+      el.style.left  = (Math.random()*110 - 5) + 'vw';
+      el.style.color = colors[Math.floor(Math.random()*colors.length)];
+      el.style.fontSize = (8 + Math.random()*18) + 'px';
+      el.style.animationDuration = (2.2 + Math.random()*2.8) + 's';
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }, i * 22);
+  }
+}
+</script>
+</body>
+</html>
